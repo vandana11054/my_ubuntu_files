@@ -37,10 +37,8 @@ bool isPalindrome(int x) {
 }
 
 void  main(){
-    int num;
-
+   int num;
    printf("Enter a number:");
    scanf("%d",&num);
    printf("%d",isPalindrome(num));
-   
 }
