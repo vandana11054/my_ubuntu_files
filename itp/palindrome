@@ -1,0 +1,46 @@
+
+
+#include<stdio.h>
+#include<stdbool.h>
+#include<math.h>
+bool isPalindrome(int x) {
+   if(x<0) return 0;
+   int n=1;
+   int count =0;
+   while(1){
+   if(x/(int)pow(10,n)==0){
+   count = n;
+   break;
+   }
+   n++;
+   }
+   if(count%2==0){
+   if(x%11==0){
+   return 1;
+   }else{
+   return 0;
+   }
+   }else{
+     int arr[n];
+     for(int k=0;k<n;k++){
+    arr[k]= ((int)x%(int)pow(10,n-k) -(int)x%(int)pow(10,n-k-1))/((int)pow(10,n-k-1));
+     }
+     int a=1;
+     for(int i=0;i<=(int)n/2;i++){
+         if(arr[i]!=arr[n-1-i]){
+        a=2;
+         }
+     }
+     if(a==2) return 0;
+     else return 1;
+   }
+}
+
+void  main(){
+    int num;
+
+   printf("Enter a number:");
+   scanf("%d",&num);
+   printf("%d",isPalindrome(num));
+   
+}
