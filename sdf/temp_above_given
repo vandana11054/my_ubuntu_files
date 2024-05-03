@@ -1,0 +1,61 @@
+
+
+#Code for returning Higher temperatures than provided.
+import csv
+import sys
+x = sys.argv[1]
+i=0
+l=0
+output=open('heatmap.txt','w')
+with open('temperature.txt','r') as file:
+ one = csv.reader(file,delimiter='\t')
+ next(one)
+ for row in one:
+     k=0
+     for column in row:
+         k=k+1
+ if(k==1):
+    file.close()
+    with open('temperature.txt','r') as filem:
+     two = csv.reader(filem,delimiter=' ')
+     next(two)
+     for rows in two:
+            i=i+1
+            a=0
+            b=0
+            for columns in rows:
+                    b=b+1
+                    if(columns>x):
+                            if(a==0):
+                                output.write("line-")
+                                output.write(str(i))
+                                output.write(":")
+                                a=a+1
+                            output.write("LC_")
+                            output.write(str(b-1))
+                            output.write(",")
+            if(a!=0):
+               output.write("\n")
+ else:
+    file.close()
+    with open('temperature.txt','r') as filen:
+     three = csv.reader(filen,delimiter='\t')
+     next(three)
+     for rows in three:
+            l=l+1
+            r=0
+            e=0
+            for columns in rows:
+                    e=e+1
+                    if(columns>x):
+                            if(r==0):
+                                output.write("line-")
+                                output.write(str(l))
+                                output.write(":")
+                                r=r+1
+                            output.write("LC_")
+                            output.write(str(e-1))
+                            output.write(",")
+
+            if(r!=0):
+               output.write("\n")
