@@ -1,0 +1,15 @@
+
+
+#!/bin/bash       	
+awk -F: '{if (!($1 ~ /#[0-9]+$/))                        
+{
+	sum[NF]
+	for(i=1;i<NF;i++)
+	{
+	sum[i] = sum[i] + $i
+        printf	sum[i]":"
+        }
+	print "  "
+}
+}'                                                             #give numbers seperated by : with same cols as input(few lines sholud start with #)
+                                                               #you will get cumulative sum of non # rows as output. 
