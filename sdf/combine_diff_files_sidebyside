@@ -1,0 +1,30 @@
+
+
+import sys
+la = []                                          #an empty list for storing filenames to be created.
+i=0
+while True:
+    try:
+        seq=sys.argv[i+1]
+        if seq == " ":
+           break
+    except:
+        break
+    la.append(seq)
+    i=i+1
+
+for elem in la:                                      #for each element in list la(eg."abc")
+    files =[]                                        #creates an empty list for every filename in given list.
+    for character in elem:
+            files.append(f'{character}.txt')         #to contain individual files(eg: a.txt,b.txt,c.txt)
+    filen = open(f'{elem}.txt','w')                  #creates named file as entered by user and opens it in write
+                                                     #mode (eg: abc.txt)
+    for lines in zip(*(open(i) for i in files)):     #opens all files of a filename simultaneously
+                                                     #(eg: a.txt,b.txt,c.txt opened if abc.txt is 
+                                                     #input),iterate over each line among all files at a time using zip().          
+             for line in lines:
+                       filen.write(line.strip())
+                       filen.write(',')
+             filen.write("\n")                       #write content of all files line by line(nth line contains nth line
+                                                     #content of every file separated by        
+          #comma) in filen,not to append after complete file we use strip() which strips the file at every \n
