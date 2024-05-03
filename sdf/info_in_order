@@ -1,0 +1,26 @@
+
+
+#!/bin/bash
+awk -F"\n"  '{
+if(NR%2==1&&NR<=130){
+	printf ((NR+1)/2)";"
+}            
+for(i=1; i<=NR; i++) 
+			{
+                                tmp=match($i, /[a-z A-Z ]+$/)
+                                if(tmp){
+				printf $i";"
+				}
+                                num=match($i,/[0-9]+$/)
+                                if(num){
+                                printf $i";"
+                                }
+				if(num){
+					printf "cs23btech110"(NR/2)"@iith.ac.in"
+				}
+				if(num !=0){
+					print " "
+				}
+			}	
+                        
+               }' 
