@@ -23,7 +23,7 @@ bool isPalindrome(int x) {
    }else{
      int arr[n];
      for(int k=0;k<n;k++){
-    arr[k]= ((int)x%(int)pow(10,n-k) -(int)x%(int)pow(10,n-k-1))/((int)pow(10,n-k-1));
+           arr[k]= ((int)x%(int)pow(10,n-k) -(int)x%(int)pow(10,n-k-1))/((int)pow(10,n-k-1));
      }
      int a=1;
      for(int i=0;i<=(int)n/2;i++){
