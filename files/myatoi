@@ -1,0 +1,61 @@
+#include<iostream>
+#include<cmath>
+#include<ctype.h>
+using namespace std;
+
+int main(){
+string in;
+cout<<"Enter string:";
+getline(cin,in);
+int b=0;
+for (int t=1;t<in.length()-1;t++){
+    if (!(0<=in[t]-'0' && in[t]-'0'<=9) && !(isspace(in[t])) && in[t]!='-') {
+        b =t;
+        break;
+        }
+}
+signed int a=0;
+int i=1;
+ if(in[i]=='-') {
+   i=i+1;
+    for(;i<in.length()-1;i++){
+         if(0<=in[i]-'0' && in[i]-'0'<=9) {
+          if(b!=0) a -= (in[i]-'0')*(int)(pow(10,-2-i+b+1)+0.5);
+          else a -= (in[i]-'0')*(int)(pow(10,in.length()-2-i)+0.5);
+        }
+        else break;
+    }
+ }else if(isspace(in[i])){
+    i=i+1;
+    if(in[i]=='-'){
+      i=i+1;
+    for(;i<in.length()-1;i++){
+          if(0<=in[i]-'0' && in[i]-'0'<=9) {
+          if(b!=0) a -= (in[i]-'0')*(int)(pow(10,-2-i+b+1)+0.5);
+          else a -= (in[i]-'0')*(int)(pow(10,in.length()-2-i)+0.5);
+        }
+        else break;
+    }
+    }else{
+     for(;i<in.length()-1;i++){
+          if(0<=in[i]-'0' && in[i]-'0'<=9) {
+          if(b!=0) a += (in[i]-'0')*(int)(pow(10,-2-i+b+1)+0.5);
+          else a += (in[i]-'0')*(int)(pow(10,in.length()-2-i)+0.5);
+        }
+        else break;
+    }   
+    }
+ }
+ else if(in[i]=='+'|| (0<= in[i]-'0' && in[i]-'0'<=9)){
+     if(in[i]=='+') i=i+1;
+     for(;i<in.length()-1;i++){
+        if(0<=in[i]-'0' && in[i]-'0'<=9) {
+          if(b!=0) a += (in[i]-'0')*(int)(pow(10,-2-i+b+1)+0.5);
+          else a += (in[i]-'0')*(int)(pow(10,in.length()-2-i)+0.5);
+        }
+        else break;
+    }   
+ }
+cout<<a<<endl;
+return 0;
+}
