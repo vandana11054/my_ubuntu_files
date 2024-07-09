@@ -4,3 +4,37 @@ previously generated token:
 personal access token: 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
 valid for 3 months from april ig.
 if project assigned then regenerate.
+
+
+command: ssh-keygen -t rsa -b 2048
+
+Generating public/private rsa key pair.
+Enter file in which to save the key (/home/vandana/.ssh/id_rsa):    //enter        
+Enter passphrase (empty for no passphrase):                         //enter
+Enter same passphrase again:                                        //enter
+Your identification has been saved in /home/vandana/.ssh/id_rsa
+Your public key has been saved in /home/vandana/.ssh/id_rsa.pub
+The key fingerprint is:
+SHA256:Z0u1nGiiYO5udNOti1cuJcNzaC09STgO99n2agq9ai0 vandana@vandana
+The key's randomart image is:
++---[RSA 2048]----+
+|                 |
+|                 |
+|         .  .    |
+|      . + .+ o   |
+|    o  *SO*++    |
+|   o..o.@B%.o    |
+|   ....o.%oo .   |
+|   ..  .E.o.. .  |
+|   oo .oo=oo..   |
++----[SHA256]-----+
+
+commands:
+cd /
+cd home
+cd vandana
+cd .ssh
+cat id_rsa.pub
+key:
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDDwWQfNtJbl4LJ3W8p74XRujhM8l+EtCpso8AqVVBI8JQFFswyBjIFnR2gQbeEfbfjZa1MnD9aw6ZsdY0ZRCG6uyIlAkhajevwODVjZpoXPmQ32Ghy+bFSV3O4aZtZXMZBZhepgnzpCgV47meTMdbMCTdoNJy6vvUsUEbiKORfu6Nqcoqlzl6zYXu8ozgiJYA69lLE7td+w6jTU3UwOXN+6QUh7R0AjfDpH4EQs9VVSccngYNSqlrGjnHz99G9FzIs5Ezn8QZOs7GM5j9JgEBT6dTgnMfKy3E+lxOFPuf3FfD4zJVxkwtHfWphZ5QZOcQDHhq2UEVbpf/y783rlypt vandana@vandana
+
