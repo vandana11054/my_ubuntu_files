@@ -1,0 +1,208 @@
+
+
+#include "Float.h"
+#include<iostream>
+#include<stdio.h>
+#include<string>
+#include<vector>
+#include<algorithm>
+#include<cstdlib>
+using namespace std;
+namespace InfiniteArithmetic
+{
+	class Float
+	{
+		string s;
+		public:
+		Float()
+		{
+			s = "0";
+		}
+		Float(string a)
+		{
+			s = a;
+		}
+		Float(Float &b)
+		{
+			s = b.s;
+		}
+		~Float()
+		{
+
+		}
+		void sum(string s1,string ss1)
+		{
+			string s=s1;
+			string s2 = ss1;
+			string min ;
+			string max ;
+			int x=0 , y=0;
+			long long int z = s.size() -1;
+			long long int  l = s2.size() -1;
+			for( ; z>=0 ; z--)
+			{
+				if(s[z] == '.')
+				{
+					x = z;
+				}
+			}
+			for( ; l>=0 ; l--)
+			{
+				if(s2[l] == '.')
+				{
+					y = l;
+				}
+			}
+			z = s.size() - 1;
+			l = s2.size() -1 ;
+			int count1 = 0 , count2 = 0 , m;
+			for( m = 0; m < z-x; m++)
+			{
+				count1 += 1;
+			}
+			for(m = 0; m < l-y; m++)
+			{
+				count2 += 1;
+			}
+			if(count1 > count2)
+			{
+				min = s2;
+				max = s;
+			}
+			else if(count1<count2)
+			{
+				min = s;
+				max = s2;
+			}
+			else if(count1 = count2)
+			{
+				max = s;
+				min = s2;
+			}
+			int count3=0,count4=0;
+			for(int j=0;j<z;j++)
+			{
+				if(max[j]!=0)
+				{
+					count3 += 1;
+				}
+			}
+			for(int j=0;j<z;j++)
+			{
+				if(min[j]!=0)
+				{
+					count4 += 1;
+				}
+			}
+			if(count3 < count4)
+			{
+				for(int j = 0 ; j < (count4-count3) ; ++j)
+				{  max.insert(max.begin() , 0); }
+			}
+			vector<float> s3;
+			int p = 0 , a = 0;
+			int q = 0 , b = 0;
+			long long int k = max.size() - 1;
+			long long int i = min.size() - 1;
+			int point =0;
+			for(int j = 0; j <= k ; ++j)
+			{
+				if(max[j] == '.')
+				{a = (k-j);}
+			}
+			for(int j = 0; j <= k ; ++j)
+			{
+				if(min[j] == '.')
+				{b = (i-j);}
+			}
+			string vmax;
+			string vmin;
+			if(max.size()-a-1 >= min.size()-b-1){
+				vmax=max;
+				vmin=min;
+			}
+			else if(max.size()-a-1 < min.size()-b-1){
+				vmax=min;
+				vmin=max;
+			}
+			int u = vmax.size()-1;
+			int w = vmin.size()-1;
+			if(vmax==min){
+				for(int j = 0 ; j < (a-b) ; ++j)
+				{
+					vmax.push_back('0');
+					u += 1;
+				}
+			} 
+			else{
+				for(int j = 0 ; j < (a-b) ; ++j)
+				{
+					vmin.push_back('0');
+					w +=1;
+				}
+			}
+			for( ; w >= 0; w--)
+			{
+				if((vmax[u] == '.') && (vmin[w] == '.'))
+				{
+					point=w;
+				}
+				else
+				{
+					p = ( vmax[u]-'0' ) + ( vmin[w]-'0' );
+					if(q!=0)
+					{
+						p = p+1;
+						q = 0;
+					}
+					if(p >= 10)
+					{
+						q = 1;
+						s3.push_back(p-10);
+					}
+					else if(p<10)
+					{
+						s3.push_back(p);
+					}
+				}
+				u=u-1;
+			}
+			if(u==-1){
+				s3.push_back(q);
+			}
+			else if(u!=-1){
+				for(;u>=0;u--){
+					int h=(vmax[u]-'0')+q;
+					if(h<10){
+						s3.push_back(h);
+						q=0;
+					}
+					else if(h>=10){
+						q=1;
+						s3.push_back(h-10);
+					}
+				}
+				if(q!=0) s3.push_back(q);    
+			}
+			reverse(s3.begin(),s3.end());
+			for(int l=0;l<=(s3.size()-vmin.size()+point);l++){
+				cout<<s3[l];
+			}
+			cout<<".";
+			for(l=(s3.size()-vmin.size()+point+1);l<s3.size();l++){
+				cout<<s3[l];
+			}
+
+			cout<<endl;
+		}
+
+		void  Float:: operator+(const Float &t){
+			if(s[0]!='-' && t.s[0]!='-'){
+				Float::sum(s,t.s);
+			}
+			else{
+				cout<<"Operation not provided for negative case"<<endl;
+			}
+		}
+	};
+}
