@@ -1,0 +1,89 @@
+
+
+
+
+string Rfunc7(string a){ //function to return 7 bits of func7 field acc. to func
+	if(a=="sra" || a=="sub")   return "0100000" ;                                                  
+	else if(a=="add"||a=="xor"||a=="or"||a=="and"||a=="sll"||a=="srl") 
+		return "0000000";                                                   
+        return "error7";           //invalid func passed          
+}
+string Rfunc3(string a){ //function to return 3 bits of func3 field acc. to func
+	if(a=="add" || a=="sub")   return "000" ;                                                  
+	else if(a=="srl"|| a=="sra") return "101";                                                   
+	else if(a=="sll") return "001";                                                   
+	else if(a=="xor") return "100";                                                                                   
+	else if(a=="or") return "110";                                                
+	else if(a=="and") return "111";                                               
+	return "error3";   //invalid func passed
+
+}
+string Rformat(string line,string rd,string rs1,string rs2,string func,string in,int i,int count){
+//function that  generates binary format of given instruction
+   bool next = true;
+   i++;
+   for(;i<line.length();i++){
+        if(line[i]!=',' && !(isspace(line[i]))){ 
+ //second argument terminating characters are comma and blank space
+		  next = false;
+                  rd.push_back(line[i]); //second argument copied to destination register
+			}
+	else if(line[i]==',') break;
+   }
+    i++;
+    next = true;
+   for(;i<line.length();i++){
+        if(line[i]!=','&& !(isspace(line[i]))){
+ //third argument terminating characters are comma and blank space
+		  next = false;
+                  rs1.push_back(line[i]);
+			}
+	 else if(line[i]==',' && !(next)) break;
+   }
+	if(Rfunc7(func)=="error7"){
+	cout<<"Suspected wrong function syntax in line "<<count<<endl;
+	cout<<"May be extra space in operation provided"<<endl;
+		return "1";
+	}else{
+	//append 7 bits of func7 
+		in.append(Rfunc7(func));
+	}
+   i++;
+   next =true;
+   for(;i<line.length();i++){
+        if(line[i]!=','&& !(isspace(line[i]))){
+	// iteration may start with comma 
+	//last argument is ended with blank space
+		  next = false;
+                  rs2.push_back(line[i]);
+			}
+   }
+   //Valid arguments are appended to string in acc. to R format encoding
+        if(reg(rs2)!="invalid") {  //5 bits of source register appended 
+		in.append(reg(rs2));
+	}else {
+             cout<<"Invalid identifier at source register-2 in line "<<count<<endl;
+	     return "1"; 
+	}
+        if(reg(rs1)!="invalid") {
+	     in.append(reg(rs1));
+	}else{
+             cout<<"Invalid identifier at source register-1 in line "<<count<<endl;
+	     return "1"; 
+	}
+        if(Rfunc3(func)!="error3"){ // 3 bits of func3 appended
+	       	in.append(Rfunc3(func));
+	}else{
+	cout<<"Suspected wrong function syntax in line "<<count<<endl;
+	return "1";
+	}
+        if(reg(rd)!="invalid") { 
+	       	in.append(reg(rd));
+	}else{
+             cout<<"Invalid identifier at destination register in line "<<count<<endl;
+	     return "1"; 
+	}
+
+	in.append(Opcode(func)); //7 bits of Opcode appended
+	return in; //return binary format of instruction
+}
