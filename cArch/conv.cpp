@@ -6,6 +6,12 @@
 #include<algorithm>
 #include<utility>
 #include"functions.hpp"
+#include"Iimpl.hpp"
+#include"Rimpl.hpp"
+#include"Simpl.hpp"
+#include"Uimpl.hpp"
+#include"Bimpl.hpp"
+#include"Jimpl.hpp"
 using namespace std;
 
 string Rfunc7(string a){
@@ -158,7 +164,7 @@ string constant(string imm,string value,string Opcode){
      return "rangeError"; //out_of_range error 
   }
 }
-string Bformat(string line,string rs1,string rs2,string func,string imm,string in,int i,int count,vector<pair<int,string>> label){
+string Bformat(string line,string rs1,string rs2,string func,string imm,string in,int i,int count,vector<pair<int,string>> label,vector<pair<string,string>> * regs,string * PC,string *exec,int * stepper){
 //function to generate binary format of given instruction
    bool next = true;
    i++;
@@ -190,6 +196,7 @@ string Bformat(string line,string rs1,string rs2,string func,string imm,string i
    }
    for(int m=0;m<label.size();m++){
         if(label[m].second == target){ 
+		*stepper = label[m].first;
          imm =constant(imm,to_string(4*(label[m].first-count)),Opcode(func));
 //label[m].first returns line number of given label
 // label[m].first-count returns no. of lines between label and b-instruction with label 
@@ -206,7 +213,9 @@ string Bformat(string line,string rs1,string rs2,string func,string imm,string i
           cout<<"Empty label found at line "<<count<<endl;
 	  return "1";
    }
+	bgen(func,reg(rs1),reg(rs2),imm,regs,PC,exec,&count,stepper);
      if(!imm.empty() && (imm != "rangeError")){
+
 	  // ignore last bit(imm[0]) and sign-extend 
           imm.pop_back();
           reverse(imm.begin(),imm.end());
@@ -247,7 +256,7 @@ string Bformat(string line,string rs1,string rs2,string func,string imm,string i
 return in;
 }
 
-string Rformat(string line,string rd,string rs1,string rs2,string func,string in,int i,vector<pair<string,string>> regs){
+string Rformat(string line,string rd,string rs1,string rs2,string func,string in,int i,vector<pair<string,string>> * regs){
    bool next = true;
    i++;
    for(;i<line.length();i++){
@@ -285,6 +294,7 @@ string Rformat(string line,string rd,string rs1,string rs2,string func,string in
         if(reg(rs1)!="invalid")  in.append(reg(rs1));
         if(Rfunc3(func)!="error") in.append(Rfunc3(func));
         if(reg(rd)!="invalid")  in.append(reg(rd));
+	        rgen(func,reg(rd),reg(rs1),reg(rs2),regs);	
 	in.append(Opcode(func));
 	return in;
 }
@@ -307,7 +317,7 @@ string lowerConstant(string imm,string value){
 	reverse(imm.begin(),imm.end());
 	return imm;
 }
-string Sformat(string line,string rs1,string rs2,string func,string imm,string in,int i,int count,vector<pair<string,string>> regs){
+string Sformat(string line,string rs1,string rs2,string func,string imm,string in,int i,int count,vector<pair<string,string>> * regs,string* text){
 	i++;
 	for(;i<line.length();i++){
         if(!isspace(line[i]) && line[i]!=','){
@@ -361,9 +371,10 @@ string Sformat(string line,string rs1,string rs2,string func,string imm,string i
 	}
 	if(imm != "rangeError")  in.append(imm.substr(7,5));//imm[4:0]
         in.append(Opcode(func));
+	store(func,reg(rs2),reg(rs1),imm,regs,text);	
 	return in;
 }
-      string IGformat (string line,string rs1,string func,string imm,string rd,string in,int i,int count,vector<pair<string,string>> regs){ //function for general I-format instruction parsing
+      string IGformat (string line,string rs1,string func,string imm,string rd,string in,int i,int count,vector<pair<string,string>> * regs){ //function for general I-format instruction parsing
    bool next = true;
    i++;
    for(;i<line.length();i++){
@@ -413,7 +424,7 @@ string Sformat(string line,string rs1,string rs2,string func,string imm,string i
 	        }
 	in.append(imm);
 	}
-        if(reg(rs1)!="invalid") {
+        if(reg(rs1)!="invalid"){
 	       	in.append(reg(rs1));
 	}else{
              cout<<"Invalid identifier at source register in line "<<count<<endl;
@@ -431,10 +442,11 @@ string Sformat(string line,string rs1,string rs2,string func,string imm,string i
              cout<<"Invalid identifier at destination register in line "<<count<<endl;
 	     return "1"; 
 	}
+	        igen(func,reg(rd),reg(rs1),imm,regs);	
         in.append(Opcode(func));
 	return in;
       }
-      string  ILformat( string line,string rs1,string func,string imm,string rd,string in,int i,int count,vector<pair<string,string>> regs){ 
+      string  ILformat( string line,string rs1,string func,string imm,string rd,string in,int i,int count,string* text,vector<pair<string,string>> * regs,string * PC,string* exec,int* stepper){ 
 	//function for  I-format load instruction parsing      
 	i++;
 	for(;i<line.length();i++){
@@ -444,6 +456,7 @@ string Sformat(string line,string rs1,string rs2,string func,string imm,string i
 			}
 			else if(line[i]==',' ) break;
 			}
+
 	string temp;
 	i++;
         for(;i<line.length();i++){
@@ -463,7 +476,7 @@ string Sformat(string line,string rs1,string rs2,string func,string imm,string i
 	i++;
 	for(;i<line.length(); i++){
          if(line[i]!=')' && line[i]!='(' && !(isspace(line[i]))){
-         //input is of the form (rs1)
+              //input is of the form (rs1)
 		 next = false;
 		 rs1.push_back(line[i]);
 	 }
@@ -471,6 +484,7 @@ string Sformat(string line,string rs1,string rs2,string func,string imm,string i
 	}
         if(reg(rs1)!="invalid"){
 	      	in.append(reg(rs1));
+	        iload(func,reg(rd),reg(rs1),imm,regs,text,PC);	
 	}else{
              cout<<"Invalid identifier at source register-1 in line "<<count<<endl;
 	     return "1"; 
@@ -546,8 +560,9 @@ string upperConstant(string imm,string value,string Opcode){
  }
 }
  
-string Uformat(string line,string rd,string func,string imm,string in,int i,int count){
+string Uformat(string line,string rd,string func,string imm,string in,int i,int count,vector<pair<string,string>> * regs){
    i++;
+      string bintemp;
    for(;i<line.length();i++){
         if(line[i] !=',' && !(isspace(line[i]))){
 	// argument terminates with comma or space
@@ -568,9 +583,13 @@ string Uformat(string line,string rd,string func,string imm,string in,int i,int 
 	}
       }
       }
+       for(int f=0;f<temp.length();f++){
+           bintemp.append(hex_to_bin(temp[f]));   //calculate binary of given hex digit
+        }
    }
-   else{
+   else{  
           imm = upperConstant(imm,temp,Opcode(func));//20-bit imm. appended
+	  bintemp.append(imm);
     }
    if(imm != "rangeError" )  {
 	   in.append(imm.substr(0,20));
@@ -585,10 +604,11 @@ string Uformat(string line,string rd,string func,string imm,string in,int i,int 
 	     return "1"; 
    }
    if(Opcode(func)!="invalid")  in.append(Opcode(func)); 
+   upper_imm(reg(rd),bintemp,regs);
    return in;
 }
 string Jformat(string line,string rd,string func,string imm,string in,int i,int count,
-		 vector<pair<int,string>> label){
+		 vector<pair<int,string>> label,vector<pair<string,string>>* regs,string* PC,string* exec,int* stepper){
 //function that parses J-instruction to binary format
      bool next = true;
      i++;
@@ -613,14 +633,23 @@ string Jformat(string line,string rd,string func,string imm,string in,int i,int 
                target.push_back(line[i]);
           }
      }
+     int p=0;
+     /*if(!(stoi(target))){
+               imm = upperConstant(imm,target,Opcode(func));
+     }*/
      for (int m = 0; m < label.size(); m++)
      {
           if (label[m].second == target)
           {    //if label name present in vector of pairs label
+	       p=1;
+	       *stepper = label[m].first;
                imm = upperConstant(imm,to_string(4*(label[m].first-count)),Opcode(func));
                break;
           }
      }
+     if(!p)    imm = upperConstant(imm,target,Opcode(func));
+     if(*stepper !=1) *stepper = *stepper -count;
+	jgen(func,reg(rd),imm,regs,PC,exec,&count,stepper);
 	  if (imm != "rangeError")
      {   //ignore last bit and extend sign
 	  imm.pop_back();
@@ -651,32 +680,16 @@ int main(int argc,char* argv[])
    string PC = "0x00000000";
    bool load = false;
    string cmd;
-   while(cmd!="exit"){
-      getline(cin,cmd);
-      string temp;
-      if(cmd == "load input.txt"){
-              for(int i=0;i<32;i++){
-	      temp.push_back('x');
-	      temp.append(to_string(i));
-	      regs.push_back(make_pair(reg(temp),"0x00000000"));
-	      temp.erase();
-	      }
-      }
-      else if(cmd == "run" ){
+   int idx=0;
+   int stepper=1;
+              string text[65536] = {"0x00"};
+	     // string data[]  
+   static int end=0;
    vector<pair<int,string>> label; //A vector of pairs for storing label name,line
 				   //number pairs
-
-   string in;               //string for storing instruction in binary format 
-                            //each argument of input stored as individual string                     
-   string func;
-   string rd;
-   string rs1; 
-   string rs2;
-   string imm;
-   int count=0;          //variable for line-number
+  ifstream one("input.txt");    //open input.txt using file stream
+	       		       //while file has not reached end of file
    int labelMatch =0;    //variable for storing line-numbers containing valid labels
-   ifstream one("input.s");    //open input.s using file stream
-			       //while file has not reached end of file
    while(!one.eof()){     //loop  for storing instructions with valid labels
      string test;         // string to store line test
      string tfunc;        // test func string to verify input is label or operation
@@ -693,7 +706,7 @@ int main(int argc,char* argv[])
 		}
 	else break;
 	}  
-           if(tfunc.find(':')!= string::npos){ //If string is a label
+           if(tfunc.find(':') < 100){ //If string is a label
 	    tfunc.pop_back();             //remove colon
             label.push_back(make_pair(labelMatch,tfunc));
 	    //make a pair of label name and line number of label
@@ -702,54 +715,47 @@ int main(int argc,char* argv[])
      tfunc.erase(); //after each line execution erase func argument and instruction
      test.erase();
    }
-   one.close();   //close input.s
-   /*string ins;*/
-   ifstream inp("input.s");
+   one.close();   //close input.txt
+   ifstream step("input.txt");
+   int step_count=0;
+   while(cmd!="exit"){
+      getline(cin,cmd);
+      string temp;
+      if(cmd == "load input.txt"){
+              for(int i=0;i<32;i++){
+	      temp.push_back('x');
+	      temp.append(to_string(i));
+	      regs.push_back(make_pair(reg(temp),"0x0"));
+	      temp.erase();
+	      }
+              cout<<endl;
+      }
+      else if(cmd == "run" ){
+
+   string in;               //string for storing instruction in binary format 
+                         //each argument of input stored as individual string                     
+   ifstream inp("input.txt");
+   string func;
+   string rd;
+   string rs1; 
+   string rs2;
+   string imm;
+   int count=0;
+   static int stop=0;
    while(!inp.eof()){  
+   string exec;
    string line;
+   if(stepper !=1){
+   for(int w=1;w<=stepper;w++){
    getline(inp,line);
-   count+=1;
+   }
+   }else{
+     getline(inp,line);
+   }
+  if(stepper>1) count = count+stepper;
+  else count = count +1;
+   stepper =1;
    if(!line.empty()){
-string b = "100";
-string res;
-      reverse(PC.begin(),PC.end());
-      PC.pop_back();
-      PC.pop_back();
-      reverse(PC.begin(),PC.end());
-int q=0;
-string a;
-for(int d=0;d<PC.length();d=d+1){
-    a.append(hex_to_bin(PC[d]));
-}
-int k=a.length()-b.length()-1;
-reverse(b.begin(),b.end());
-for(;k>=0;k--){
-     b.push_back('0');
-}
-reverse(b.begin(),b.end());
-for(int i= a.length()-1;i>=0;i--){
-      int p = (a[i]-'0')+(b[i]-'0')+q;
-      if(p>1) {
-	      res.push_back('0'); 
-              q=1;
-      }
-      else{
-	      res.push_back(p + '0'); 
-	      q=0;
-      }
-}
-      reverse(res.begin(),res.end());
-       PC.erase();
-	for(int i=0;i<res.length();i=i+4){
-		string bin = res.substr(i,4);
-		char c= conv(stoi(bin));
-		PC.push_back(c);
-	}
-      res.erase();
-      reverse(PC.begin(),PC.end());
-      PC.push_back('x');
-      PC.push_back('0');
-      reverse(PC.begin(),PC.end());
    string check;
    int i=0;
    bool space=true;
@@ -759,8 +765,8 @@ for(int i= a.length()-1;i>=0;i--){
 	 // string to ignore labels by pushing to it instead of pushing to function argument
             bool before = true;    // variable to check space is before or after argument  
 	    for(;i<line.length();i++){
-	if(isspace(line[i]) && before) i++;
-        if(!isspace(line[i])){
+	      if(isspace(line[i]) && before) i++;
+              if(!isspace(line[i])){
 	          before = false;
                   ignoreLabel.push_back(line[i]);//ignore that label argument
 		}
@@ -793,42 +799,66 @@ for(int i= a.length()-1;i>=0;i--){
    }
    }
    if(check == "0110011"){
-	  in = Rformat(line,rd,rs1,rs2,func,in,i,regs);
+	  in = Rformat(line,rd,rs1,rs2,func,in,i,&regs);
    }
    else if(check == "0100011") {
-         in = Sformat(line,rs1,rs2,func,imm,in,i,count,regs);
+         in = Sformat(line,rs1,rs2,func,imm,in,i,count,&regs,text);
    }                                         
    else if (check=="0000011" || check == "1100111"){
-	   in= ILformat(line,rs1,func,imm,rd,in,i,count,regs);
+	   in= ILformat(line,rs1,func,imm,rd,in,i,count,text,&regs,&PC,&exec,&stepper);
    }
    else if (check == "0010011"){
-          in= IGformat(line,rs1,func,imm,rd,in,i,count,regs);
+          in= IGformat(line,rs1,func,imm,rd,in,i,count,&regs);
    }
    else if(check == "1100011"){
-          in = Bformat(line,rs1,rs2,func,imm,in,i,count,label);
+          in = Bformat(line,rs1,rs2,func,imm,in,i,count,label,&regs,&PC,&exec,&stepper);
    }
    else if(check == "0110111"){
-          in = Uformat(line,rd,func,imm,in,i,count);
+          in = Uformat(line,rd,func,imm,in,i,count,&regs);
    }else if(check == "1101111"){
-          in = Jformat(line,rd,func,imm,in,i,count,label);
+          in = Jformat(line,rd,func,imm,in,i,count,label,&regs,&PC,&exec,&stepper);
    }
+   if(in== "1")  {
+      break;
+   }
+//if( stop == 1) { //Any error reported as "1"
+//		cout<<"Execution terminated"<<endl;
+//		return 1;
+//	}
 	string array;
 	for(int i=0;i<in.length();i=i+4){
 		string bin = in.substr(i,4);
 		char c= conv(stoi(bin));
 		array.push_back(c);
 	}
-	/*for(int l=0;l<32;l++){
-    cout<<regs[l]<<"reg "<<l<<" value: "<<endl;
-	}*/
+        int it=0;
+   for(int k=0;k<8;k=k+2){
+         reverse(array.begin(),array.end());
+	 string slice;
+	 slice.append("0x");
+	 slice.append(array.substr(k+1,1));
+	 slice.append(array.substr(k,1));
+	 text[idx+it] = slice;
+         reverse(array.begin(),array.end());
+	 it++;
+   }  
+   idx=idx+4;
    ofstream obj("outsim.hex",ios::app);
    if(obj.is_open()){
-    obj<<array<<endl;
+   obj<<array<<endl;
    obj.close();
    }
-   cout<<"Executed: "<<line<<" ; ";
-   cout<<" PC = "<<PC<<endl;
-   cout<<endl;
+   cout<<"Executed "<<line<<" ; ";
+  if(exec.empty()){
+	  cout<<"PC="<<PC<<endl;
+          PC =  PCU(PC,"100");
+  }
+  else{
+         cout<<"PC="<<PC<<endl;
+         PC.erase();
+	 PC.append(exec);
+	 exec.erase();
+     }
         array.erase();
 	func.erase();
 	rd.erase();
@@ -838,11 +868,12 @@ for(int i= a.length()-1;i>=0;i--){
 	imm.erase();
    }
 }
+cout<<endl;
 inp.close();
       }
       else if(cmd == "regs" ){
-            cout<<"Executed: "<<cmd <<endl;
 	    string temp;
+	    string bin;
               for(int i=0;i<32;i++){ 
 	      temp.push_back('x');
 	      temp.append(to_string(i));
@@ -852,7 +883,158 @@ inp.close();
 	      cout<<regs[i].second<<endl;
 	      temp.erase();
 	      }
+          cout<<endl;
+	  for(int i=0;i<30;i++){
+             cout<<"Mem at "<<i<<"  "<<text[i]<<endl;
+	  }
       }
+   if(cmd == "step"){
+   if(step.eof()){
+      end=1;
+   }
+	   if(end==1){
+             cout<<"nothing to step"<<endl;
+	   }
+	   else{
+   string in;               //string for storing instruction in binary format 
+   string func;
+   string rd;
+   string rs1; 
+   string rs2;
+   string imm;
+   if(!step.eof()){  
+   string exec;
+   string line;
+   if(stepper !=1){
+   for(int w=1;w<=stepper;w++){
+   getline(step,line);
+   }
+   }else{
+     getline(step,line);
+   }
+   if(stepper>1) step_count = step_count+stepper;
+   else step_count = step_count +1;
+   stepper =1;
+   if(!line.empty()){
+   string check;
+   int i=0;
+   bool space=true;
+   for(int m=0;m<label.size();m++){
+      if(step_count == label[m].first)  { //if line contains label
+	    string ignoreLabel;      
+	 // string to ignore labels by pushing to it instead of pushing to function argument
+            bool before = true;    // variable to check space is before or after argument  
+	    for(;i<line.length();i++){
+	      if(isspace(line[i]) && before) i++;
+              if(!isspace(line[i])){
+	          before = false;
+                  ignoreLabel.push_back(line[i]);//ignore that label argument
+		}
+	else break;
+	    }
+	    i++;
+      }
+   }
+   space = true;
+   for(;i<line.length();i++){
+	if(isspace(line[i]) && space) i++;
+        if(!isspace(line[i])){
+	          space = false;
+                  func.push_back(line[i]);
+		}
+	else break;
+   }
+   check = Opcode(func);
+   if(check=="error"){
+        string temp = func;
+	func.erase();
+	space = true;
+        for(;i<line.length();i++){
+	      if(isspace(line[i]) && space) i++;
+              if(!isspace(line[i])){
+	          space = false;
+                  func.push_back(line[i]);
+		}
+	else break;
+   }
+   }
+   if(check == "0110011"){
+	  in = Rformat(line,rd,rs1,rs2,func,in,i,&regs);
+   }
+   else if(check == "0100011") {
+         in = Sformat(line,rs1,rs2,func,imm,in,i,step_count,&regs,text);
+   }                                         
+   else if (check=="0000011" || check == "1100111"){
+	   in= ILformat(line,rs1,func,imm,rd,in,i,step_count,text,&regs,&PC,&exec,&stepper);
+   }
+   else if (check == "0010011"){
+          in= IGformat(line,rs1,func,imm,rd,in,i,step_count,&regs);
+   }
+   else if(check == "1100011"){
+          in = Bformat(line,rs1,rs2,func,imm,in,i,step_count,label,&regs,&PC,&exec,&stepper);
+   }
+   else if(check == "0110111"){
+          in = Uformat(line,rd,func,imm,in,i,step_count,&regs);
+   }else if(check == "1101111"){
+          in = Jformat(line,rd,func,imm,in,i,step_count,label,&regs,&PC,&exec,&stepper);
+   }
+   if(in== "1"){
+      cout<<"Not stepped";
+   }
+//if( stop == 1) { //Any error reported as "1"
+//		cout<<"Execution terminated"<<endl;
+//		return 1;
+//	}
+	string array;
+	for(int i=0;i<in.length();i=i+4){
+		string bin = in.substr(i,4);
+		char c= conv(stoi(bin));
+		array.push_back(c);
+	}
+        int it=0;
+   for(int k=0;k<8;k=k+2){
+         reverse(array.begin(),array.end());
+	 string slice;
+	 slice.append("0x");
+	 slice.append(array.substr(k+1,1));
+	 slice.append(array.substr(k,1));
+	 text[idx+it] = slice;
+         reverse(array.begin(),array.end());
+	 it++;
+   }  
+   idx=idx+4;
+   ofstream obj("outsim.hex",ios::app);
+   if(obj.is_open()){
+   obj<<array<<endl;
+   obj.close();
+   }
+   cout<<"Executed "<<line<<" ; ";
+  if(exec.empty()){
+	  cout<<"PC="<<PC<<endl;
+          PC =  PCU(PC,"100");
+  }
+  else{
+         cout<<"PC="<<PC<<endl;
+         PC.erase();
+	 PC.append(exec);
+	 exec.erase();
+     }
+        array.erase();
+	func.erase();
+	rd.erase();
+	rs1.erase();
+	rs2.erase();
+	in.erase();
+	imm.erase();
+   }
+}
+cout<<endl;
+}
+}
+}
+   step.close();
+   if(cmd == "exit"){
+	   cout<<"Exited the simulator"<<endl;
    }
 	return 0;
 }
