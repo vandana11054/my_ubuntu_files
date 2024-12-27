@@ -1,14 +1,12 @@
 
 
-10.2
-
 #include<stdio.h>
  void inputsud(int a[4][4]);
  void display(int a[4][4]);
  void checkWin(int a[4][4]);
  void solvePuzzle(int a[4][4]);
-int main(){
 
+int main(){
 int num;
 int game[4][4]={0};
 printf("menu:\n 1. input sudoku\n 2.solve a puzzle\n 3.exit");
@@ -28,6 +26,7 @@ printf("Exiting Game..");
 break;
 }
 }
+
 void display(int a[4][4]){
 for(int m=0;m<4;m++){
 for(int n=0;n<4;n++){
@@ -36,6 +35,7 @@ printf("|%d|",a[m][n]);
 puts("\n");
 }
 }
+
 void inputsud(int a[4][4]){
 int p,q;
 while(1){
@@ -63,6 +63,7 @@ printf("please enter valid entries for same row and column numbers again.");
 display(a);
 }
 }
+
 void solvePuzzle(int a[4][4]){
 int u,v;
 while(1){
@@ -76,6 +77,7 @@ scanf("%d",&a[u][v]);
 display(a);
 }
 }
+
 void checkWin(int a[4][4]){
 int r=0;
 for(int i=0;i<4;i++){
